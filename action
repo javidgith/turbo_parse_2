@@ -1,0 +1,21 @@
+name: Schedule R Script
+on:
+  schedule:
+    - cron: "0 0 * * *"  # This runs the script every day at midnight UTC (adjust as needed)
+jobs:
+  run_script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: 4.2
+
+      - name: Install dependencies
+        run: Rscript -e 'install.packages(c("rvest", "data.table", "dplyr", "stringi"))'
+
+      - name: Run R script
+        run: Rscript main_parse.R
