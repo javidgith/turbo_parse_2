@@ -2,6 +2,9 @@ name: Schedule R Script
 on:
   schedule:
     - cron: "0 0 * * *"  # This runs the script every day at midnight UTC (adjust as needed)
+  repository_dispatch:
+    types: [manual]
+
 jobs:
   run_script:
     runs-on: ubuntu-latest
@@ -14,8 +17,16 @@ jobs:
         with:
           r-version: 4.2
 
+      - name: Cache R packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/R
+          key: ${{ runner.os }}-R-${{ hashFiles('**/DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-R-
+
       - name: Install dependencies
-        run: Rscript -e 'install.packages(c("rvest", "data.table", "dplyr", "stringi"))'
+        run: Rscript -e 'install.packages(c("data.table", "rvest", "stringi", "dplyr"), dependencies = TRUE)'
 
       - name: Run R script
         run: Rscript main_parse.R
